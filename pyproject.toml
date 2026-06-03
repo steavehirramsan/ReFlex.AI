@@ -3,7 +3,7 @@ requires = ["hatchling>=1.21"]
 build-backend = "hatchling.build"
 
 [project]
-name = "reflexai"
+name = "reflex-memory"
 dynamic = ["version"]
 description = "Persistent cognitive architecture for long-running AI agents: tiered memory, a closed cognition loop, and an integrity layer."
 readme = "README.md"
@@ -53,7 +53,7 @@ dev = [
     "mypy>=1.10",
     "types-PyYAML>=6.0",
 ]
-all = ["reflexai[faiss,embeddings,postgres,serve]"]
+all = ["reflex-memory[faiss,embeddings,postgres,serve]"]
 
 [project.urls]
 Homepage = "https://github.com/steavehirramsan/ReFlex.AI"

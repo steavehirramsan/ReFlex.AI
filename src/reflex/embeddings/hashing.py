@@ -5,7 +5,7 @@ Uses the classic *feature hashing* trick: lowercase word unigrams and bigrams ar
 then L2-normalised. This gives a deterministic vector whose cosine similarity tracks
 lexical overlap — enough for retrieval to behave sensibly offline and in tests, with zero
 model downloads. For semantic-quality embeddings on real deployments, switch to the
-``sentence_transformers`` backend (``reflexai[embeddings]``).
+``sentence_transformers`` backend (``reflex-memory[embeddings]``).
 """
 
 from __future__ import annotations
