@@ -25,7 +25,7 @@ llm:
   max_retries: 2
 
 embeddings:
-  provider: sentence_transformers       # requires: pip install "reflex-ai[embeddings]"
+  provider: sentence_transformers       # requires: pip install "reflexai[embeddings]"
   model: sentence-transformers/all-MiniLM-L6-v2
   normalize: true
 
@@ -34,7 +34,7 @@ memory:
   short_term_capacity: 64
   working_token_budget: 4096
   vector:
-    backend: faiss                      # requires: pip install "reflex-ai[faiss]"
+    backend: faiss                      # requires: pip install "reflexai[faiss]"
     metric: cosine
   retrieval:
     total_k: 12

@@ -281,8 +281,11 @@ dependency-free hashing embedder), so you can explore the architecture on any ma
 touching a GPU.
 
 ```bash
-git clone https://github.com/reflex-ai/reflex.git
-cd reflex
+pip install reflexai            # from PyPI (the import name and CLI are `reflex`)
+
+# …or from source:
+git clone https://github.com/steavehirramsan/ReFlex.AI.git
+cd ReFlex.AI
 pip install -e .
 
 reflex run                      # interactive REPL (:stats, :recall <q>, :quit)

@@ -2,7 +2,7 @@
 
 Requires the ``embeddings`` extra::
 
-    pip install "reflex-ai[embeddings]"
+    pip install "reflexai[embeddings]"
 
 On AMD Instinct, install the ROCm PyTorch build first so the model runs on-GPU.
 """
@@ -30,7 +30,7 @@ class SentenceTransformerEmbedder(Embedder):
         except ImportError as exc:  # pragma: no cover - exercised only without the extra
             raise BackendError(
                 "sentence-transformers is not installed. Install with "
-                '`pip install "reflex-ai[embeddings]"`.'
+                '`pip install "reflexai[embeddings]"`.'
             ) from exc
         self._model = SentenceTransformer(model, device=device)
         self.dim = int(self._model.get_sentence_embedding_dimension())

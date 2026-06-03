@@ -57,7 +57,7 @@ class LLMConfig(BaseModel):
 
 class EmbeddingConfig(BaseModel):
     # 'hashing' is a deterministic, dependency-free embedder for offline use and tests.
-    # 'sentence_transformers' loads a real model (extra: reflex-ai[embeddings]).
+    # 'sentence_transformers' loads a real model (extra: reflexai[embeddings]).
     provider: Literal["hashing", "sentence_transformers"] = "hashing"
     model: str = "hashing-256"
     dim: int = Field(default=256, gt=0)

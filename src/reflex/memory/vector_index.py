@@ -1,7 +1,7 @@
 """Approximate/exact nearest-neighbour indexes used by the memory tiers.
 
 The default :class:`NumpyVectorIndex` is exact, dependency-free, and fine for research-scale
-stores (tens of thousands of vectors). For larger deployments install ``reflex-ai[faiss]``
+stores (tens of thousands of vectors). For larger deployments install ``reflexai[faiss]``
 and select ``vector.backend: faiss`` — :class:`FaissVectorIndex` keeps the same interface.
 """
 
@@ -118,7 +118,7 @@ class NumpyVectorIndex(VectorIndex):
 
 
 class FaissVectorIndex(VectorIndex):
-    """FAISS-backed index (optional, ``reflex-ai[faiss]``) for large stores."""
+    """FAISS-backed index (optional, ``reflexai[faiss]``) for large stores."""
 
     def __init__(self, dim: int, metric: Metric = "cosine") -> None:
         try:
@@ -127,7 +127,7 @@ class FaissVectorIndex(VectorIndex):
             from ..errors import BackendError
 
             raise BackendError(
-                'faiss is not installed. Install with `pip install "reflex-ai[faiss]"`.'
+                'faiss is not installed. Install with `pip install "reflexai[faiss]"`.'
             ) from exc
         self._faiss = faiss
         self.dim = dim
