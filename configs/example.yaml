@@ -1,0 +1,57 @@
+# ReFlex.AI — example production configuration for AMD Instinct / ROCm.
+#
+# This points the runtime at a local OpenAI-compatible inference server (vLLM or SGLang,
+# both ROCm-native) and a real sentence-transformers embedder. Start a server first, e.g.:
+#
+#   vllm serve meta-llama/Llama-3.1-8B-Instruct --port 8000
+#
+# Secrets do NOT belong in this file. Set them via environment variables, which override
+# YAML:  export REFLEX_LLM__API_KEY=...   (the base_url below needs no key for local vLLM)
+
+agent:
+  name: reflex
+  goals:
+    - Maintain an accurate, durable model of the user's project and preferences.
+    - Prefer grounded answers; state uncertainty when memory is silent.
+
+llm:
+  provider: openai
+  model: meta-llama/Llama-3.1-8B-Instruct
+  base_url: http://localhost:8000/v1   # vLLM / SGLang OpenAI-compatible endpoint
+  # api_key: set via REFLEX_LLM__API_KEY if your server requires one
+  temperature: 0.3
+  max_tokens: 1024
+  timeout_s: 60
+  max_retries: 2
+
+embeddings:
+  provider: sentence_transformers       # requires: pip install "reflex-ai[embeddings]"
+  model: sentence-transformers/all-MiniLM-L6-v2
+  normalize: true
+
+memory:
+  db_path: ./data/reflex_memory.db
+  short_term_capacity: 64
+  working_token_budget: 4096
+  vector:
+    backend: faiss                      # requires: pip install "reflex-ai[faiss]"
+    metric: cosine
+  retrieval:
+    total_k: 12
+  compaction:
+    enabled: true
+    episodic_threshold: 2000
+    batch_size: 200
+
+reflection:
+  enabled: true
+  every_n_turns: 1
+
+integrity:
+  enabled: true
+  on_violation: revise
+  max_revisions: 2
+
+logging:
+  level: INFO
+  rich: true

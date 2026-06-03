@@ -181,19 +181,27 @@ ReFlex.AI is developed **ROCm-first** so the entire stack runs on open software 
 ## Repository Layout
 
 ```text
-reflex/
-├── core/                 # Orchestrator, policy, routing
-├── memory/
-│   ├── short_term/       # Volatile buffer + working memory
-│   ├── episodic/         # Event store
-│   ├── semantic/         # Fact / entity store
-│   └── archive/          # Compression + cold recall
+src/reflex/
+├── core/                 # Orchestrator, policy, the cognition loop
+├── memory/               # Tiered memory subsystem
+│   ├── short_term.py     # Volatile buffer + working memory
+│   ├── episodic.py       # Durable event store (what happened)
+│   ├── semantic.py       # Durable fact store (what is true)
+│   ├── archive.py        # Compressed cold-tier recall
+│   ├── manager.py        # Tier coordination, retrieval fusion, compaction
+│   ├── vector_index.py   # numpy (default) / FAISS ANN indexes
+│   └── db.py             # SQLite persistence
+├── llm/                  # LLM backends: offline mock + OpenAI-compatible (vLLM/SGLang)
+├── embeddings/           # hashing (default) + sentence-transformers
 ├── reflection/           # Self-correction loop
-├── integrity/            # Hallucination & consistency pipelines
-├── runtime/              # Long-running agent infrastructure
-├── eval/                 # Benchmark harness + datasets
-├── configs/              # Experiment configs (YAML)
-└── docs/                 # Architecture & design notes
+├── integrity/            # Hallucination & consistency guard
+├── runtime/              # Long-running Agent
+├── eval/                 # Benchmark harness + synthetic datasets
+└── cli.py                # `reflex run | chat | inspect | eval | config`
+configs/                  # Experiment configs (YAML)
+docs/                     # Architecture & configuration reference
+tests/                    # Hermetic, deterministic test suite
+examples/                 # Runnable quickstart
 ```
 
 ---
@@ -223,7 +231,7 @@ All experiments are designed to be **reproducible** (pinned ROCm containers, ver
 
 ## Evaluation & Benchmarking
 
-> **Status: harness under construction; results not yet published.** We are committed to honest, reproducible numbers and will not report metrics until the harness is stable.
+> **Status: an initial, reproducible retention benchmark ships today (`reflex eval`); the broader suite is under construction and headline results are not yet published.** We are committed to honest, reproducible numbers and will not report metrics until each benchmark is stable.
 
 The evaluation suite is being built to measure:
 
@@ -239,16 +247,19 @@ Every benchmark ships with its config and seed so results are independently veri
 
 ## Roadmap
 
-**Phase 1 — Foundations** 🚧
+**Phase 1 — Foundations** ✅
 - [x] Memory hierarchy design & tier semantics
 - [x] Agent state persistence model
-- [ ] Retrieval pipelines (episodic + semantic)
-- [ ] Reflection framework (closed loop)
+- [x] Retrieval pipelines (episodic + semantic + archive, recency-fused)
+- [x] Reflection framework (closed loop)
+- [x] Integrity layer (grounding, drift & self-consistency checks)
 
-**Phase 2 — Scale & Measurement** 🔜
-- [ ] Hierarchical memory compression
+**Phase 2 — Scale & Measurement** 🚧
+- [x] Autonomous tier compaction into the cold archive
+- [x] Memory-retention benchmark (`reflex eval`)
+- [ ] Hierarchical (learned) memory compression
 - [ ] Synthetic memory dataset generation
-- [ ] Long-context benchmarking harness
+- [ ] Long-context benchmarking harness (broader suite)
 - [ ] Multi-agent experimentation
 
 **Phase 3 — Autonomy** 🔜
@@ -263,13 +274,43 @@ Legend: ✅ done · 🚧 in progress · 🔜 planned
 
 ## Getting Started
 
-> The CLI and configs are **alpha** and evolving. The flow below shows the intended developer experience on AMD Instinct hardware.
+### Run it now — offline, no GPU required
+
+The full cognitive runtime ships with deterministic offline backends (a mock LLM + a
+dependency-free hashing embedder), so you can explore the architecture on any machine before
+touching a GPU.
 
 ```bash
-# Clone
 git clone https://github.com/reflex-ai/reflex.git
 cd reflex
+pip install -e .
 
+reflex run                      # interactive REPL (:stats, :recall <q>, :quit)
+reflex chat "Remember my project is ReFlex." --show-memory
+reflex eval                     # reproducible memory-retention benchmark
+python examples/quickstart.py   # a persistent agent in a dozen lines
+```
+
+In Python:
+
+```python
+import asyncio
+from reflex import Agent, ReflexConfig
+
+async def main():
+    async with Agent.from_config(ReflexConfig.load()) as agent:
+        await agent.turn("Remember that my deployment region is eu-west-2.")
+        print(await agent.chat("Where am I deploying?"))   # recalls from durable memory
+
+asyncio.run(main())
+```
+
+### On AMD Instinct — real models via ROCm
+
+Point the OpenAI-compatible backend at a ROCm-native inference server (vLLM or SGLang) — the
+only change is configuration:
+
+```bash
 # Recommended on AMD Instinct: official ROCm container
 docker run -it --rm \
   --device=/dev/kfd --device=/dev/dri \
@@ -279,8 +320,9 @@ docker run -it --rm \
   rocm/vllm-dev:nightly bash
 
 # Inside the container
-pip install -e .
-reflex run --config configs/example.yaml
+pip install -e ".[faiss,embeddings]"
+vllm serve meta-llama/Llama-3.1-8B-Instruct --port 8000 &
+reflex run --config configs/example.yaml      # uses the local vLLM endpoint + FAISS
 ```
 
 Verify ROCm sees the accelerators:
@@ -289,7 +331,8 @@ Verify ROCm sees the accelerators:
 rocm-smi
 ```
 
-See [`docs/`](docs/) for architecture notes and configuration reference.
+See [`docs/architecture.md`](docs/architecture.md) and
+[`docs/configuration.md`](docs/configuration.md) for the design and full config reference.
 
 ---
 

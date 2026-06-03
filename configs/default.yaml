@@ -1,0 +1,66 @@
+# ReFlex.AI — default offline configuration.
+#
+# Runs anywhere with no GPU, network, or API key: a deterministic mock LLM and a
+# dependency-free hashing embedder back the full cognitive runtime. Ideal for development,
+# tests, and trying the architecture end-to-end.
+#
+# Every value here is also the code default; this file documents the shape of the config.
+
+agent:
+  name: reflex
+  persona: >
+    You are ReFlex, a careful, long-running assistant with durable memory. You ground
+    answers in retrieved memory, admit uncertainty, and never invent history.
+  goals: []
+  # session_id: null   # auto-generated per run if unset
+
+llm:
+  provider: mock          # mock | openai
+  model: reflex-mock
+  temperature: 0.4
+  max_tokens: 1024
+
+embeddings:
+  provider: hashing       # hashing | sentence_transformers
+  model: hashing-256
+  dim: 256
+  normalize: true
+
+memory:
+  db_path: reflex_memory.db
+  short_term_capacity: 40
+  working_token_budget: 2048
+  promotion_importance: 0.6
+  vector:
+    backend: numpy        # numpy | faiss
+    metric: cosine        # cosine | ip | l2
+  retrieval:
+    episodic_k: 6
+    semantic_k: 6
+    archive_k: 3
+    total_k: 10
+    min_score: 0.0
+    recency_half_life_s: 86400.0
+    recency_weight: 0.15
+  compaction:
+    enabled: true
+    episodic_threshold: 200
+    semantic_threshold: 500
+    batch_size: 50
+    keep_recent: 50
+
+reflection:
+  enabled: true
+  every_n_turns: 1
+  min_importance_to_store: 0.55
+
+integrity:
+  enabled: true
+  support_threshold: 0.18
+  block_threshold: 0.8
+  on_violation: revise    # flag | revise | raise
+  max_revisions: 1
+
+logging:
+  level: INFO
+  rich: true
