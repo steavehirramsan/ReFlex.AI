@@ -6,7 +6,7 @@
 
 *A tiered-memory cognitive runtime that gives LLM agents durable state, self-correction, and a stable identity across long horizons — hours, days, or months of continuous operation.*
 
-
+</div>
 
 ---
 
